@@ -60,6 +60,27 @@ def majority_vote_signal(weak_signals):
     mv_weak_labels[mv_weak_labels == -1] = 0
     return mv_weak_labels
 
+def build_constraints(a_matrix, bounds):
+    """ params:
+        a_matrix left hand matrix of the inequality size: num_weak x num_data x num_class type: ndarray
+        bounds right hand vectors of the inequality size: num_weak x num_data type: ndarray
+        return:
+        dictionary containing constraint vectors
+    """
+
+    m, n, k = a_matrix.shape
+
+    # debugging code
+    # print("\n\nbounds shape =", bounds.shape)
+    # print("(m, k) =", (m, k), "\n\n")
+
+    assert (m, k) == bounds.shape, \
+        "The constraint matrix shapes don't match"
+
+    constraints = dict()
+    constraints['A'] = a_matrix
+    constraints['b'] = bounds
+    return constraints
 
 def set_up_constraint(weak_signals, error_bounds):
     """ Set up error constraints for A and b matrices """
@@ -86,6 +107,12 @@ def set_up_constraint(weak_signals, error_bounds):
 
     # set up error upper bounds constraints
     constants = np.sum(constants, axis=1)
+
+    # debugging code
+    # print("\n\nConstants shape =", constants.shape)
+    # print("error_bounds shape =", error_bounds.shape, "\n\n")
+
+
     assert len(constants.shape) == len(error_bounds.shape)
     bounds = error_bounds - constants
     error_set = build_constraints(error_amatrix, bounds)
@@ -136,7 +163,7 @@ def y_gradient(y, constraint_set):
     return gradient
 
 
-def run_constraints(y, rho, constraint_set, iters=300, enable_print=True):
+def run_constraints(y, rho, constraint_set, iters=300, enable_print=False):
     # Run constraints from CLL
 
     constraint_keys = constraint_set['constraints']
@@ -188,6 +215,12 @@ def train_algorithm(constraint_set):
     """
     constraint_set['constraints'] = ['error']
     weak_signals = constraint_set['weak_signals']
+
+    # debugging code
+    print("\n\n num weak_signals =", len(weak_signals.shape))
+    print("weak_signals =", weak_signals.shape, "\n\n")
+
+
     assert len(weak_signals.shape) == 3, "Reshape weak signals to num_weak x num_data x num_class"
     m, n, k = weak_signals.shape
     # initialize y
@@ -202,37 +235,81 @@ def train_algorithm(constraint_set):
     return np.mean(ys, axis=0)
 
 
-def constrained_label_learning(train_data):
-
-    n_examples = n_examples = train_data.shape[1]
-
-    return 0.5 * np.ones(n_examples)
-
-
 
 # # # # # # # # # # # # # # # # # # #
-# Main driver code from expiriemnt  #
+# Driver for COMBINED CODE          #
 # # # # # # # # # # # # # # # # # # #
+
+def constrained_label_learning(train_data, weak_signals, weak_errors):
+    """ 
+    Creates probabilistic labels to train data on
+
+    :param train_data: 
+    :type  train_data:
+
+    :param weak_signals: 
+    :type  weak_signals:
+
+    :param weak_errors: 
+    :type  weak_errors:
+
+    :return: 
+    :rtype: 
+    """
+
+    
+
+    n_examples = train_data.shape[1]
+    labels = 0.5 * np.ones(n_examples)
+
+    # Might get rid of this later, just so I don't accidentally change up the weak signals too much
+    new_weak_signals = weak_signals
+    weak_errors = weak_signals
+
+
+    # Make sure weak signals and weak_errors have the correct dimensions
+    if len(new_weak_signals.shape) == 2:
+        new_weak_signals = np.expand_dims(new_weak_signals.T, axis=-1)
+    
+    # if len(weak_errors.shape) == 2:
+    #     weak_errors = np.expand_dims(weak_errors.T, axis=-1)
+
+    weak_errors = np.flip(weak_errors.T, axis=None)
+
+
+    constraints = set_up_constraint(new_weak_signals, weak_errors)
+    constraints['weak_signals'] = new_weak_signals
+    y = train_algorithm(constraints)
+
+
+
+    return labels
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # #
+# Main driver code from STANDALONE CODE     #
+# # # # # # # # # # # # # # # # # # # # # # #
 
 def run_CLL_experiment(dataset, true_bound=False):
     """ Run CLL experiments """
 
-    batch_size = 32
+    # batch_size = 32
     train_data, train_labels = dataset['train']
-    test_data, test_labels = dataset['test']
+    # test_data, test_labels = dataset['test']
     weak_signals = dataset['weak_signals']
     m, n, k = weak_signals.shape
 
     weak_errors = np.ones((m, k)) * 0.01
 
-    if true_bound:
-        weak_errors = get_error_bounds(train_labels, weak_signals)
-        weak_errors = np.asarray(weak_errors)
+    # if true_bound:
+    #     weak_errors = get_error_bounds(train_labels, weak_signals)
+    #     weak_errors = np.asarray(weak_errors)
 
     # Set up the constraints
     constraints = set_up_constraint(weak_signals, weak_errors)
     constraints['weak_signals'] = weak_signals
-    mv_labels = majority_vote_signal(weak_signals)
+    # mv_labels = majority_vote_signal(weak_signals)
 
     y = train_algorithm(constraints)
     # accuracy = accuracy_score(train_labels, y)
