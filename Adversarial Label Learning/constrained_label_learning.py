@@ -202,10 +202,17 @@ def train_algorithm(constraint_set):
     return np.mean(ys, axis=0)
 
 
+def constrained_label_learning(train_data):
 
-# # # # # # # # # # # # # # # #
-# Main driver code            #
-# # # # # # # # # # # # # # # #
+    n_examples = n_examples = train_data.shape[1]
+
+    return 0.5 * np.ones(n_examples)
+
+
+
+# # # # # # # # # # # # # # # # # # #
+# Main driver code from expiriemnt  #
+# # # # # # # # # # # # # # # # # # #
 
 def run_CLL_experiment(dataset, true_bound=False):
     """ Run CLL experiments """

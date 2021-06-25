@@ -8,6 +8,7 @@ import json
 import math
 
 from models import ALL, LabelEstimator, GECriterion
+from constrained_label_learning import constrained_label_learning
 
 
 def new_run_experiment(data_obj, multiple_weak_signals, constant_bound=False):
