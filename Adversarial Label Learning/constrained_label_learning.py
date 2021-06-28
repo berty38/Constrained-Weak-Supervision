@@ -70,11 +70,11 @@ def build_constraints(a_matrix, bounds):
 
     m, n, k = a_matrix.shape
 
-    # debugging code
-    print("\n\nbounds shape =", bounds.shape)
-    print("(m, k) =", (m, k), "\n\n")
+    # # debugging code
+    # print("\n\nbounds shape =", bounds.shape)
+    # print("(m, k) =", (m, k), "\n\n")
 
-    assert (m, k) == bounds.shape, \
+    assert (m, n) == bounds.shape, \
         "The constraint matrix shapes don't match"
 
     constraints = dict()
@@ -87,12 +87,16 @@ def set_up_constraint(weak_signals, error_bounds):
 
     constraint_set = dict()
     m, n, k = weak_signals.shape
+
     precision_amatrix = np.zeros((m, n, k))
     error_amatrix = np.zeros((m, n, k))
     constants = []
 
+    # # debugging code
+    # print("\n\nshape of weak signals", weak_signals.shape ,"\n\n")
+    # print("\n\nshape of error amatrix", error_amatrix.shape ,"\n\n")
+
     for i, weak_signal in enumerate(weak_signals):
-        # print("\nHELLO:", i)
         active_signal = weak_signal >= 0
         precision_amatrix[i] = -1 * weak_signal * active_signal / \
             (np.sum(active_signal*weak_signal, axis=0) + 1e-8)
@@ -109,9 +113,9 @@ def set_up_constraint(weak_signals, error_bounds):
     # set up error upper bounds constraints
     constants = np.sum(constants, axis=1)
 
-    # debugging code
-    print("\n\nConstants shape =", constants.shape)
-    print("error_bounds shape =", error_bounds.shape, "\n\n")
+    # # debugging code
+    # print("\n\nConstants shape =", constants.shape)
+    # print("error_bounds shape =", error_bounds.shape, "\n\n")
 
 
     assert len(constants.shape) == len(error_bounds.shape)
@@ -217,9 +221,9 @@ def train_algorithm(constraint_set):
     constraint_set['constraints'] = ['error']
     weak_signals = constraint_set['weak_signals']
 
-    # debugging code
-    print("\n\n num weak_signals =", len(weak_signals.shape))
-    print("weak_signals =", weak_signals.shape, "\n\n")
+    # # debugging code
+    # print("\n\n num weak_signals =", len(weak_signals.shape))
+    # print("weak_signals =", weak_signals.shape, "\n\n")
 
 
     assert len(weak_signals.shape) == 3, "Reshape weak signals to num_weak x num_data x num_class"
