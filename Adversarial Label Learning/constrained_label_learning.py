@@ -288,7 +288,7 @@ def constrained_label_learning(train_data, weak_signals, weak_errors):
 
 
 
-    return labels
+    return y
 
 
 

@@ -58,7 +58,7 @@ def log_accuracy(logger, values, title):
 
     # set y demensions of plots
     min_value = min(values)
-    plt.ylim([min_value - 0.1, 1])
+    plt.ylim([min_value - 0.05, 1])
 
     plt.savefig("./logs/standard/plot.png", format='png')
 
