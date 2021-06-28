@@ -71,8 +71,8 @@ def build_constraints(a_matrix, bounds):
     m, n, k = a_matrix.shape
 
     # debugging code
-    # print("\n\nbounds shape =", bounds.shape)
-    # print("(m, k) =", (m, k), "\n\n")
+    print("\n\nbounds shape =", bounds.shape)
+    print("(m, k) =", (m, k), "\n\n")
 
     assert (m, k) == bounds.shape, \
         "The constraint matrix shapes don't match"
@@ -92,6 +92,7 @@ def set_up_constraint(weak_signals, error_bounds):
     constants = []
 
     for i, weak_signal in enumerate(weak_signals):
+        # print("\nHELLO:", i)
         active_signal = weak_signal >= 0
         precision_amatrix[i] = -1 * weak_signal * active_signal / \
             (np.sum(active_signal*weak_signal, axis=0) + 1e-8)
@@ -109,8 +110,8 @@ def set_up_constraint(weak_signals, error_bounds):
     constants = np.sum(constants, axis=1)
 
     # debugging code
-    # print("\n\nConstants shape =", constants.shape)
-    # print("error_bounds shape =", error_bounds.shape, "\n\n")
+    print("\n\nConstants shape =", constants.shape)
+    print("error_bounds shape =", error_bounds.shape, "\n\n")
 
 
     assert len(constants.shape) == len(error_bounds.shape)
