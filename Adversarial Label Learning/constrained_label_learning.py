@@ -74,7 +74,7 @@ def build_constraints(a_matrix, bounds):
     # print("\n\nbounds shape =", bounds.shape)
     # print("(m, k) =", (m, k), "\n\n")
 
-    assert (m, n) == bounds.shape, \
+    assert (m, k) == bounds.shape, \
         "The constraint matrix shapes don't match"
 
     constraints = dict()
@@ -265,21 +265,29 @@ def constrained_label_learning(train_data, weak_signals, weak_errors):
     
 
     n_examples = train_data.shape[1]
-    labels = 0.5 * np.ones(n_examples)
+    # labels = 0.5 * np.ones(n_examples)
 
     # Might get rid of this later, just so I don't accidentally change up the weak signals too much
     new_weak_signals = weak_signals
-    weak_errors = weak_signals
 
+    new_weak_signals = np.flip(new_weak_signals.T, axis=None)
+    
 
     # Make sure weak signals and weak_errors have the correct dimensions
     if len(new_weak_signals.shape) == 2:
         new_weak_signals = np.expand_dims(new_weak_signals.T, axis=-1)
     
+    m, n, k = new_weak_signals.shape
+    weak_errors = np.ones((m, k)) * 0.01
+
+    # # debugging code
+    # print("\n\nShape weak_errors:", weak_errors.shape)
+    # print("Shape weak_signals:", new_weak_signals.shape, "\n\n")
+    
     # if len(weak_errors.shape) == 2:
     #     weak_errors = np.expand_dims(weak_errors.T, axis=-1)
 
-    weak_errors = np.flip(weak_errors.T, axis=None)
+    # weak_errors = np.flip(weak_errors.T, axis=None)
 
 
     constraints = set_up_constraint(new_weak_signals, weak_errors)
